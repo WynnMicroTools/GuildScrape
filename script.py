@@ -6,8 +6,8 @@ import sys
 from datetime import datetime, timezone
 import os
 
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 def main():
     start_day = "2026-03-01T00:00:00.000000Z"
@@ -39,12 +39,18 @@ def main():
                 "Authorization": f"Bearer {api_token}"
             }
         def get(self, url):
-            req = Request(url, headers=self.headers)
-            with urlopen(req) as response:
-                data = response.read()
-                encoding = response.info().get_content_charset("utf-8")
-                text = data.decode(encoding)
-                return Response(text, response.getcode(), dict(response.info()))
+            try:
+                req = Request(url, headers=self.headers)
+                with urlopen(req) as response:
+                    data = response.read()
+                    encoding = response.info().get_content_charset("utf-8")
+                    text = data.decode(encoding)
+                    return Response(text, response.getcode(), dict(response.info()))
+            except Exception as e:
+                print("Failed to get url: " + url)
+                # print(e)
+                raise Exception(e)
+    
     requests = Requests()
     tomes = {}
     guild_req = requests.get(guild_url + guild_name)
@@ -76,6 +82,8 @@ def main():
     incognito = []
     for member in sorted(member_stats.keys()):
         if not member_stats[member]['restrictions']['main_access'] and not member_stats[member]['restrictions']['online_status']:
+            # if (member=='288ebb9c-69c3-49f1-a16b-014f07bb5717'):
+                # print(member_stats[member])
             # print(f"{member}: {member_stats[member]["playtime"]} {member_stats[member]["restrictions"]}")
             # print(f"{member_stats[member]['username']}: {member_stats[member]['restrictions']}")
             pass
@@ -100,14 +108,22 @@ def main():
             if uuid in incognito:
                 continue
             member = member_stats[uuid]
-            guild_members.append(member['username'])
+            guild_members.append(member['legacyName'])
             # print(member['globalData']['guildRaids'])
             # print(member['globalData']['raids'])
             # print([member['globalData']['guildRaids'][raid] for raid in member['globalData']['guildRaids']])
             days_last_joined =  now_utc - datetime.strptime((member.get('lastJoin') or "1959-05-03T21:47:01.317000Z"), time_format).replace(tzinfo=timezone.utc)
-            stats = [formatted, uuid, (member.get('guild') or {'rank': 'RECRUIT'})['rank'],member["username"], (member.get('lastJoin') or "1959-05-03T21:47:01.317000Z"), 
-                    round(days_last_joined.total_seconds()/60/60/24, 3) ,member['playtime'], member['globalData']["wars"], member['globalData']['guildRaids']['total'],
+            # print(member['legacyName'])
+
+            try:
+                stats = [formatted, uuid, (member.get('guild') or {'rank': 'RECRUIT'})['rank'],member["legacyName"], (member.get('lastJoin') or "1959-05-03T21:47:01.317000Z"), 
+                    round(days_last_joined.total_seconds()/60/60/24, 3) ,member['globalData']['playtime'], member['globalData']["wars"], member['globalData']['guildRaids']['total'],
                     member['globalData']['lootruns'], member['globalData']["raids"]['total'], member["globalData"]['totalLevel'], member['globalData']['contentCompletion']]
+            except Exception as e:
+                # print(member)
+                # raise Exception(e)
+                incognito.append(uuid)
+
             # print(stats)
             writer.writerow(stats)
     player_data = {}
@@ -769,7 +785,7 @@ def main():
     <body>
     <h1>Performance Rankings</h1>
     <p><strong>**Chiefs and Owner not eligible for rewards**</strong></p>
-    <p>Warning icognito players: {[member_stats[uuid]['username'] for uuid in incognito]}</p>
+    <p>Warning icognito players: {[member_stats[uuid]['legacyName'] for uuid in incognito]}</p>
     <br/>
     <p>** Monthly data last collected: {month_date} Year/Month/Day/H/M/S format</p>
     <p>** Weekly data collected last collected: {formatted} Year/Month/Day/H/M/S format</p>
