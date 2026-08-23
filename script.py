@@ -16,7 +16,7 @@ def main():
         start_day = sys.argv[1]
     output_file = "./dataCollection.csv"
     # import os
-    guild_name = "ICO"
+    guild_name = "ICo"
     start_url = "https://api.wynncraft.com/v3/"
     # player_url = start_url + "player/"
     guild_url = start_url + "guild/prefix/"
@@ -75,7 +75,7 @@ def main():
     #     time.sleep(2)
     incognito = []
     for member in sorted(member_stats.keys()):
-        if not member_stats[member]['restrictions']['mainAccess'] and not member_stats[member]['restrictions']['onlineStatus']:
+        if not member_stats[member]['restrictions']['main_access'] and not member_stats[member]['restrictions']['online_status']:
             # print(f"{member}: {member_stats[member]["playtime"]} {member_stats[member]["restrictions"]}")
             # print(f"{member_stats[member]['username']}: {member_stats[member]['restrictions']}")
             pass
