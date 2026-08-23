@@ -16,10 +16,10 @@ def main():
         start_day = sys.argv[1]
     output_file = "./dataCollection.csv"
     # import os
-    guild_name = "Godly"
+    guild_name = "ICO"
     start_url = "https://api.wynncraft.com/v3/"
-    player_url = start_url + "player/"
-    guild_url = start_url + "guild/"
+    # player_url = start_url + "player/"
+    guild_url = start_url + "guild/prefix/"
     weekly_csv_file = "./weekly_data.csv"
     monthly_csv_file = "./monthly_data.csv"
     api_token = os.environ.get("API_TOKEN")
@@ -54,23 +54,25 @@ def main():
     all_members = []
     guild_break_username = {}
     guild_break_down = {}
-    for key in guild_data['members'].keys():
-        if key =="total":
-            continue
-        guild_break_down[key] = []
-        guild_break_username[key] = []
-        for member in guild_data['members'][key]:
-            guild_break_username[key].append(member)
-            if guild_data['members'][key][member].get('weekly', False) and guild_data['members'][key][member]['weekly']['completed'] and guild_data['members'][key][member]['weekly']['streak']%5==0:
-                tomes[member] = guild_data['members'][key][member]['weekly']
-            guild_break_down[key].append(guild_data['members'][key][member]['uuid'])
-            all_members.append(guild_data['members'][key][member]['uuid'])
     member_stats = {}
-    for member in all_members:
-        member_data = json.loads(json.dumps(requests.get(player_url + member).json(), default=str))
+    for rank in guild_data['members'].keys():
+        if rank =="total":
+            continue
+        guild_break_down[rank] = []
+        guild_break_username[rank] = []
+        for member in guild_data['members'][rank]:
+            guild_break_username[rank].append(member)
+            if guild_data['members'][rank][member].get('weekly', False) and guild_data['members'][rank][member]['weekly']['completed'] and guild_data['members'][rank][member]['weekly']['streak']%5==0:
+                tomes[member] = guild_data['members'][rank][member]['weekly']
+            guild_break_down[rank].append(guild_data['members'][rank][member]['uuid'])
+            # all_members.append(guild_data['members'][rank][member]['uuid'])
+            member_stats[guild_data['members'][rank][member]['uuid']] = guild_data['members'][rank][member]
+    # member_stats = {}
+    # for member in all_members:
+    #     member_data = json.loads(json.dumps(requests.get(player_url + member).json(), default=str))
         
-        member_stats[member.lower()] = member_data
-        time.sleep(2)
+    #     member_stats[member.lower()] = member_data
+    #     time.sleep(2)
     incognito = []
     for member in sorted(member_stats.keys()):
         if not member_stats[member]['restrictions']['mainAccess'] and not member_stats[member]['restrictions']['onlineStatus']:
